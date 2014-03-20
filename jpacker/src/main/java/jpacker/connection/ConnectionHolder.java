@@ -61,34 +61,44 @@ public class ConnectionHolder {
 	}
 	
 	public void commit() throws SQLException{
-		if(parentHolder != null){
-			parentHolder.commit();
-		}else if(!isAutoCommit){
-			connection.commit();
-			connection.setAutoCommit(true);
+		if(!isAutoCommit){
+			if(parentHolder != null){
+				parentHolder.commit();
+			}else{
+				connection.commit();
+				connection.setAutoCommit(true);
+				log.debug("commit this connection");
+			}
 			isAutoCommit = true;
-			log.debug("commit this connection");
 		}
 	}
 	
 	public void rollback() throws SQLException{
-		if(parentHolder != null){
-			parentHolder.rollback();
-		}else{
-			connection.rollback();
+		if(!isAutoCommit){
+			if(parentHolder != null){
+				parentHolder.rollback();
+			}else{
+				connection.rollback();
+				log.debug("rollback this connection");
+			}
 			isAutoCommit = true;
-			log.debug("rollback this connection");
 		}
 	}
 	
-	public void begin() throws SQLException{
+	public boolean begin() throws SQLException{
 		if(parentHolder != null){
-			parentHolder.begin();
+			if(parentHolder.begin()){
+				isAutoCommit = false;
+				return true;
+			}
+			return false;
 		}else if(isAutoCommit){
-			connection.setAutoCommit(false);
 			isAutoCommit = false;
+			connection.setAutoCommit(false);
 			log.debug("begin this connection");
+			return true;
 		}
+		return false;
 	}
 	
 	
