@@ -4,27 +4,25 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.List;
 
-import jpacker.connection.ConnectionManager;
-import jpacker.factory.TableFactory;
-import jpacker.local.LocalExecutor;
+import jpacker.factory.Configuration;
 import jpacker.model.SqlParameters;
 
 
 public interface JdbcExecutor {
 	
-	  void init(ConnectionManager con, TableFactory tf,LocalExecutor le) throws SQLException;
+	  void init(Configuration confg) throws SQLException;
 	
-	  <T> T queryOne(Class<T> target,String sql,SqlParameters parameters) throws SQLException;
+	  <T> T queryOne(Class<T> target,String sql,SqlParameters ...parameters) throws SQLException;
 	  
-	  <T> List<T> queryForList(Class<T> target, String sql,SqlParameters parameters) throws SQLException;
+	  <T> List<T> queryForList(Class<T> target, String sql,SqlParameters ...parameters) throws SQLException;
 
-	  <T> List<T> queryForLimit(Class<T> target,String sql,int start,int rows, SqlParameters parameters) throws SQLException;
+	  <T> List<T> queryForLimit(Class<T> target,String sql,int start,int rows, SqlParameters ...parameters) throws SQLException;
 	  
-	  <T> T queryForObject(ResultSetHandler<T> handler,String sql,SqlParameters parameters) throws SQLException;
+	  <T> T queryForObject(ResultSetHandler<T> handler,String sql,SqlParameters ...parameters) throws SQLException;
 	  
-	  <T> List<T> queryForLimit(ResultSetHandler<List<T>> handler,String sql,int start,int rows,SqlParameters parameters) throws SQLException;
+	  <T> List<T> queryForLimit(ResultSetHandler<List<T>> handler,String sql,int start,int rows,SqlParameters ...parameters) throws SQLException;
 	  
-	  int execute(String sql, SqlParameters parameters) throws SQLException;
+	  int execute(String sql, SqlParameters ...parameters) throws SQLException;
 	  
 	  int save(Object obj) throws SQLException;
 	  

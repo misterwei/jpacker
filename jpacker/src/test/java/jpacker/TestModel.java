@@ -18,7 +18,7 @@ public class TestModel {
 	private String realname;
 	private String status;
 	private int role;
-	private int maxId;
+	private Integer maxId;
 	private Date regtime;
 	
 	private List<TestModel> testArray;
@@ -40,12 +40,12 @@ public class TestModel {
 		this.testArray = test;
 	}
 	
-	@Select(name="123",sql = "select max(id),min(password) from users",lazy=false)
-	public int getMaxId(){
+	@Select(name="123",sql = "select max(id),min(password) from users",lazy=true)
+	public Integer getMaxId(){
 		return maxId;
 	}
 	
-	public void setMaxId(int max){
+	public void setMaxId(Integer max){
 		this.maxId = max;
 	}
 	

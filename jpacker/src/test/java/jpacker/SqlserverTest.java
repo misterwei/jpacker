@@ -16,6 +16,7 @@ import java.util.Map;
 import jpacker.factory.JdbcExecutorUtils;
 import jpacker.local.InsertContext;
 import jpacker.local.MSSQL2005Executor;
+import jpacker.model.SqlParameters;
 import junit.framework.TestCase;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -26,8 +27,14 @@ public class SqlserverTest extends TestCase{
 		init();
 		JdbcExecutorUtils.beginThreadLocal();
 		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
-		TestModel recs = jdbc.queryOne(TestModel.class, "select * from users",null);
+		TestModel recs = jdbc.queryOne(TestModel.class, "select * from users where id=? or id=?",new SqlParameters(100),new SqlParameters(102));
 		jdbc.close();
+		
+		System.out.println(recs.getMaxId());
+		System.out.println(recs.getPassword2());
+		
+		System.out.println(recs.getTestArray());
+		
 		JdbcExecutorUtils.endThreadLocal();
 		System.out.println(recs);
 
@@ -37,7 +44,7 @@ public class SqlserverTest extends TestCase{
 		init();
 		
 		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
-		jdbc.queryOne(Map.class, "select * from users",null);
+		jdbc.queryOne(Map.class, "select * from users where id=? " ,new SqlParameters(100));
 		jdbc.close();
 		
 //		System.out.println(recs);
@@ -47,7 +54,7 @@ public class SqlserverTest extends TestCase{
 	public void testCount() throws Exception{
 
 		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
-		int count = jdbc.queryOne(Integer.class, "select count(*) from users",null);
+		int count = jdbc.queryOne(Integer.class, "select count(*) from users");
 		jdbc.close();
 		
 	}
@@ -73,7 +80,7 @@ public class SqlserverTest extends TestCase{
 		init();
 		
 		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
-		List<TestModel> recs = jdbc.queryForList(TestModel.class, "select * from users",null);
+		List<TestModel> recs = jdbc.queryForList(TestModel.class, "select * from users");
 		jdbc.close();
 		
 		System.out.println(recs);
@@ -87,7 +94,7 @@ public class SqlserverTest extends TestCase{
 		
 		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
 		//List<TestModel> recs = jdbc.select("select * from users", new BeanListHandler<TestModel>(TestModel.class));
-		List<Object[]>  list= jdbc.queryForLimit(Object[].class, "select u.username,count(u.username) as usecount from users u group by u.username order by u.username",4,20,null);
+		List<Object[]>  list= jdbc.queryForLimit(Object[].class, "select u.username,count(u.username) as usecount from users u group by u.username order by u.username",4,20);
 		
 		jdbc.close();
 		
@@ -102,7 +109,7 @@ public class SqlserverTest extends TestCase{
 
 		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
 		//List<TestModel> recs = jdbc.select("select * from users", new BeanListHandler<TestModel>(TestModel.class));
-		List<String>  list= jdbc.queryForLimit(String.class, "select distinct username from users",4,20,null);
+		List<String>  list= jdbc.queryForLimit(String.class, "select distinct username from users",4,20);
 		
 		jdbc.close();
 		
@@ -291,7 +298,7 @@ public class SqlserverTest extends TestCase{
 		ComboPooledDataSource cpds =  new ComboPooledDataSource();
 		cpds.setDriverClass("net.sourceforge.jtds.jdbc.Driver");
 		cpds.setUser("sa");
-		cpds.setPassword("123456");
+		cpds.setPassword("sq123456");
 		cpds.setJdbcUrl("jdbc:jtds:sqlserver://127.0.0.1:1433/jpacker_test");
 		cpds.setMinPoolSize(20);
 		cpds.setMaxPoolSize(100);

@@ -8,6 +8,7 @@ import jpacker.JdbcExecutor;
 import jpacker.ResultSetHandler;
 import jpacker.connection.ConnectionHolder;
 import jpacker.connection.ConnectionManager;
+import jpacker.factory.Configuration;
 import jpacker.factory.TableFactory;
 import jpacker.local.DeleteContext;
 import jpacker.local.HandlerContext;
@@ -81,31 +82,46 @@ public class DefaultJdbcExecutor implements JdbcExecutor {
 		
 	}
 
+	private Object[] getParameters(SqlParameters parameters[]){
+		if(parameters == null || parameters.length == 0){
+			return null;
+		}
+		
+		SqlParameters first = parameters[0];
+		if(first == null)
+			return null;
+		
+		for(int i=1;i<parameters.length;i++){
+			first.add(parameters[i]);
+		}
+		
+		return first.getArray();
+	}
 
 	@Override
-	public <T> T queryOne(Class<T> target, String sql, SqlParameters parameters)
+	public <T> T queryOne(Class<T> target, String sql, SqlParameters ...parameters)
 			throws SQLException {
-		Object[] array = parameters != null ? parameters.getArray() : null;
+		Object[] array = getParameters(parameters);
 		return localExecutor.selectOne(new SelectContext<T>(target, sql, array),holder);
 	}
 
 	@Override
 	public <T> List<T> queryForList(Class<T> target, String sql,
-			SqlParameters parameters) throws SQLException {
-		Object[] array = parameters != null ? parameters.getArray() : null;
+			SqlParameters ...parameters) throws SQLException {
+		Object[] array = getParameters(parameters);
 		return localExecutor.selectList( new SelectListContext<T>(target, sql,array),holder);
 	}
 
 	@Override
 	public <T> List<T> queryForLimit(Class<T> target, String sql, int start,
-			int rows, SqlParameters parameters) throws SQLException {
-		Object[] array = parameters != null ? parameters.getArray() : null;
+			int rows, SqlParameters ...parameters) throws SQLException {
+		Object[] array = getParameters(parameters);
 		return localExecutor.selectList( new SelectListContext<T>(target, sql,start,rows,array),holder);
 	}
 
 	@Override
-	public int execute(String sql, SqlParameters parameters) throws SQLException {
-		Object[] array = parameters != null ? parameters.getArray() : null;
+	public int execute(String sql, SqlParameters ...parameters) throws SQLException {
+		Object[] array = getParameters(parameters);
 		return localExecutor.update( new UpdateContext(sql, array),holder);
 	}
 
@@ -146,28 +162,28 @@ public class DefaultJdbcExecutor implements JdbcExecutor {
 	}
 
 	@Override
-	public void init(ConnectionManager conM,TableFactory tf,LocalExecutor le) throws SQLException{
-		this.holder = conM.getConnection();
+	public void init(Configuration config) throws SQLException{
 		
+		this.connManager = config.getConnectionManager();
+		this.localExecutor = config.getLocalExecutor();
+		this.tableFactory = config.getTableFactory();
 		
-		this.connManager = conM;
-		this.localExecutor = le;
-		this.tableFactory = tf;
+		this.holder = connManager.getConnection();
 	}
 
 	@Override
 	public <T> T queryForObject(ResultSetHandler<T> handler, String sql,
-			SqlParameters parameters) throws SQLException {
-		Object[] array = parameters != null ? parameters.getArray() : null;
+			SqlParameters ...parameters) throws SQLException {
+		Object[] array = getParameters(parameters);
 		
 		return localExecutor.selectHandler(new HandlerContext<T>(handler,sql,array), holder);
 	}
 
 	@Override
 	public <T> List<T> queryForLimit(ResultSetHandler<List<T>> handler,
-			String sql, int start, int rows, SqlParameters parameters)
+			String sql, int start, int rows, SqlParameters ...parameters)
 			throws SQLException {
-		Object[] array = parameters != null ? parameters.getArray() : null;
+		Object[] array = getParameters(parameters);
 		return localExecutor.selectHandler(new HandlerContext<List<T>>(handler, sql, start, rows, array), holder);
 	}
 

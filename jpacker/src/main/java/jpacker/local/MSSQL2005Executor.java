@@ -111,7 +111,7 @@ public class MSSQL2005Executor extends AbstractLocalExecutor{
 	    		
 	    		newparams = new Object[paramlength+2];
 	        	int total = ctx.getOffset() + ctx.getLimit() + 1;
-	        	newparams[0] = total;
+	        	//newparams[0] = total;
 	        	if(paramlength > 0){	
 	        		System.arraycopy(parameters, 0, newparams, 0, parameters.length);
 	        	}
@@ -161,7 +161,7 @@ public class MSSQL2005Executor extends AbstractLocalExecutor{
 	    		if(parameters != null){
 	    			newparams = new Object[parameters.length+2];
 	        		int total = ctx.getOffset() + ctx.getLimit() + 1;
-	        		newparams[0] = total;
+	        		//newparams[0] = total;
 	        		
 	        		System.arraycopy(parameters, 0, newparams, 0, parameters.length);
 	        		

@@ -28,6 +28,18 @@ public class SqlParameters {
 		parameters[index] = obj;
 	}
 	
+	public void add(SqlParameters params){
+		if(params == null)
+			return;
+		Object[] r = params.getArray();
+		if(r == null)
+			return;
+		
+		for(Object obj : r){
+			add(obj);
+		}
+	}
+	
 	public Object[] getArray(){
 		if(index != -1){
 			return Arrays.copyOfRange(parameters, 0, index+1);

@@ -54,7 +54,7 @@ public class PostgresTest extends TestCase{
 		init();
 		
 		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
-		TestModel recs = jdbc.queryOne(TestModel.class, "select * from users where id=1045",null);
+		TestModel recs = jdbc.queryOne(TestModel.class, "select * from users where id=1045");
 		jdbc.close();
 		
 		System.out.println(recs);
@@ -171,7 +171,7 @@ public class PostgresTest extends TestCase{
 		
 		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
 		//List<TestModel> recs = jdbc.select("select * from users", new BeanListHandler<TestModel>(TestModel.class));
-		List<Object[]>  list= jdbc.queryForLimit(Object[].class, "select u.username,count(u.username) as usecount from users u group by u.username order by u.username",4,20,null);
+		List<Object[]>  list= jdbc.queryForLimit(Object[].class, "select u.username,count(u.username) as usecount from users u group by u.username order by u.username",4,20);
 		
 		jdbc.close();
 		

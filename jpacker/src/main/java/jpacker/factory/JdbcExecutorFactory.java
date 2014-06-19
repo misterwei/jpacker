@@ -41,7 +41,7 @@ public class JdbcExecutorFactory {
 			log.debug("Returns a new JdbcExecutor");
 			JdbcExecutor jdbc = config.getJdbcExecutorClass().newInstance();
 			
-			jdbc.init(cm,config.getTableFactory(),config.getLocalExecutor());
+			jdbc.init(config);
 			return jdbc;
 		} catch (Exception e) {
 			log.error("instance error",e);
