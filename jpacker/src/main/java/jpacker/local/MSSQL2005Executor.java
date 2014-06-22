@@ -85,8 +85,8 @@ public class MSSQL2005Executor extends AbstractLocalExecutor{
 			
 			Object[] newparams = null;
 			
-			if(querySelect.toLowerCase().matches(".*order\\s+by\\s+[\\w\\._-]+\\s*(desc|asc)?\\s*$")){
-	    		querySelect = querySelect.replaceFirst("^(select|SELECT)", "select TOP(?) ");
+			if(querySelect.toLowerCase().matches(".*order\\s+by(\\s*\\,?\\s*[\\w\\._-]+\\s*(desc|asc)?)+\\s*$")){
+	    		querySelect = querySelect.replaceFirst("^\\s*(select|SELECT)", "select TOP(?)");
 	    		
 	    		int paramlength = 0;
 	    		if(parameters != null){
@@ -133,6 +133,12 @@ public class MSSQL2005Executor extends AbstractLocalExecutor{
 		
 	}
 
+	public static void main(String[] args){
+		String test = "select * from goodsres where startprovince='黑龙江' and startcity='哈尔滨' order by priority desc ,publishtime desc";
+		System.out.println(test.matches(".*order\\s+by(\\s*\\,?\\s*[\\w\\._-]+\\s*(desc|asc)?)+\\s*$"));
+		System.out.println(test.replaceFirst("^\\s*(select|SELECT)", "select TOP(?)"));
+	}
+	
 	@Override
 	public <T> T selectHandler(HandlerContext<T> ctx, ConnectionHolder conn)
 			throws SQLException {
@@ -142,8 +148,8 @@ public class MSSQL2005Executor extends AbstractLocalExecutor{
 			
 			Object[] newparams = null;
 			
-			if(querySelect.toLowerCase().matches(".*order\\s+by\\s+[\\w\\._-]+\\s*(desc|asc)?\\s*$")){
-	    		querySelect = querySelect.replaceFirst("^(select|SELECT)", "select TOP(?)");
+			if(querySelect.toLowerCase().matches(".*order\\s+by(\\s*\\,?\\s*[\\w\\._-]+\\s*(desc|asc)?)+\\s*$")){
+	    		querySelect = querySelect.replaceFirst("^\\s*(select|SELECT)", "select TOP(?)");
 	    		
 	    		if(parameters != null){
 	    			newparams = new Object[parameters.length+3];
