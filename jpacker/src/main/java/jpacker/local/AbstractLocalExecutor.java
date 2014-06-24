@@ -49,7 +49,7 @@ public abstract class AbstractLocalExecutor implements LocalExecutor {
 		
 		return sql;
 	}
-
+	
 	protected  <T> T handleSelectOne(Class<T> type,ConnectionHolder conn,String sql,
 			Object... parameters) throws SQLException{
 		if(log.isDebugEnabled()){

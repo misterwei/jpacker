@@ -8,6 +8,7 @@ import java.util.List;
 import jpacker.DbUtils;
 import jpacker.connection.ConnectionHolder;
 import jpacker.model.IdModel;
+import jpacker.processor.RowUtils;
 
 public class MSSQL2005Executor extends AbstractLocalExecutor{
 	static String SQL_LIMIT_PREFIX = "WITH query AS (SELECT inner_query.*,ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as inner_query_id FROM ("; 
@@ -28,17 +29,12 @@ public class MSSQL2005Executor extends AbstractLocalExecutor{
 				try {
 				    stmt = prepareStatement(conn.getConnection(), "select @@IDENTITY");
 		            rs = stmt.executeQuery();
-		            Object idValue = null;
+		            
 		            if(rs.next()){
-						if(idType == Integer.class){
-							idValue = rs.getInt(1);
-						}else if(idType == Long.class){
-							idValue = rs.getLong(1);
-						}
-						rs.getObject(1);
+		            	Object idValue = RowUtils.autoConvert(rs,idType);
+						idModel.getProperty().invokeWrite(target, idValue);
 					}
 				
-					idModel.getProperty().invokeWrite(target, idValue);
 				} catch (Exception e) {
 					throw new SQLException(e);
 				}finally{
