@@ -4,10 +4,11 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.List;
 
-import jpacker.JdbcExecutor;
+import jpacker.Jpacker;
 import jpacker.ResultSetHandler;
 import jpacker.connection.ConnectionHolder;
 import jpacker.connection.ConnectionManager;
+import jpacker.exception.JpackerException;
 import jpacker.factory.Configuration;
 import jpacker.factory.TableFactory;
 import jpacker.local.DeleteContext;
@@ -28,8 +29,8 @@ import org.slf4j.LoggerFactory;
  * @author cool
  *
  */
-public class DefaultJdbcExecutor implements JdbcExecutor {
-	static final Logger log = LoggerFactory.getLogger(DefaultJdbcExecutor.class);
+public class DefaultJpacker implements Jpacker {
+	static final Logger log = LoggerFactory.getLogger(DefaultJpacker.class);
 	
 	
 	private LocalExecutor localExecutor = null;
@@ -40,23 +41,43 @@ public class DefaultJdbcExecutor implements JdbcExecutor {
 	
 	private ConnectionHolder holder;
 	
+	public DefaultJpacker(Configuration config,ConnectionManager cm) throws JpackerException{
+
+		this.connManager = cm;
+		this.localExecutor = config.getLocalExecutor();
+		this.tableFactory = config.getTableFactory();
+		
+		try{
+			this.holder = connManager.getConnection();
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
+	}
 	
 	/**
 	 * 提交
 	 */
-	public void commit() throws SQLException {
-		holder.commit();
+	public void commit() throws JpackerException {
+		try{
+			holder.commit();
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 	
 	/**
 	 * 事务开始
 	 */
 	
-	public void begin() throws SQLException {
+	public void begin() throws JpackerException {
 		if(log.isDebugEnabled()){
 			log.debug("begin the JdbcExecutor's transaction");
 		}
-		holder.begin();
+		try{
+			holder.begin();
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 	
 	/**
@@ -100,91 +121,108 @@ public class DefaultJdbcExecutor implements JdbcExecutor {
 
 	@Override
 	public <T> T queryOne(Class<T> target, String sql, SqlParameters ...parameters)
-			throws SQLException {
+			throws JpackerException {
 		Object[] array = getParameters(parameters);
-		return localExecutor.selectOne(new SelectContext<T>(target, sql, array),holder);
+		try{
+			return localExecutor.selectOne(new SelectContext<T>(target, sql, array),holder);
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 
 	@Override
 	public <T> List<T> queryForList(Class<T> target, String sql,
-			SqlParameters ...parameters) throws SQLException {
+			SqlParameters ...parameters) throws JpackerException {
 		Object[] array = getParameters(parameters);
-		return localExecutor.selectList( new SelectListContext<T>(target, sql,array),holder);
+		try{
+			return localExecutor.selectList( new SelectListContext<T>(target, sql,array),holder);
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 
 	@Override
 	public <T> List<T> queryForLimit(Class<T> target, String sql, int start,
-			int rows, SqlParameters ...parameters) throws SQLException {
+			int rows, SqlParameters ...parameters) throws JpackerException {
 		Object[] array = getParameters(parameters);
-		return localExecutor.selectList( new SelectListContext<T>(target, sql,start,rows,array),holder);
+		try{
+			return localExecutor.selectList( new SelectListContext<T>(target, sql,start,rows,array),holder);
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 
 	@Override
-	public int execute(String sql, SqlParameters ...parameters) throws SQLException {
+	public int execute(String sql, SqlParameters ...parameters) throws JpackerException {
 		Object[] array = getParameters(parameters);
-		return localExecutor.update( new UpdateContext(sql, array),holder);
+		try{
+			return localExecutor.update( new UpdateContext(sql, array),holder);
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 
 	@Override
-	public int save(Object obj) throws SQLException {
+	public int save(Object obj) throws JpackerException {
 		TableModel tableModel = tableFactory.get(obj.getClass());
 		try {
 			return localExecutor.insert( new InsertContext(tableModel, obj),holder);
 		} catch(Exception e){
-			throw new SQLException(e);
+			throw new JpackerException(e);
 		}
 	}
 
 	@Override
-	public int update(Object obj) throws SQLException {
+	public int update(Object obj) throws JpackerException {
 		TableModel tableModel = tableFactory.get(obj.getClass());
 		try{
 			return localExecutor.update( new UpdateContext(tableModel, obj),holder);
 		} catch(Exception e){
-			throw new SQLException(e);
+			throw new JpackerException(e);
 		}
 	}
 
 	@Override
-	public int delete(Class<?> type, Serializable rowid) throws SQLException {
+	public int delete(Class<?> type, Serializable rowid) throws JpackerException {
 		TableModel tableModel = tableFactory.get(type);
 		try{	
 			return localExecutor.delete( new DeleteContext(tableModel, rowid),holder);
 		} catch(Exception e){
-			throw new SQLException(e);
+			throw new JpackerException(e);
 		}
 	}
 
 	@Override
-	public <T> T get(Class<T> type, Serializable rowid) throws SQLException {
+	public <T> T get(Class<T> type, Serializable rowid) throws JpackerException {
 		TableModel tableModel = tableFactory.get(type);
-		return localExecutor.selectOne( new SelectContext<T>(tableModel, rowid),holder);
-	}
-
-	@Override
-	public void init(Configuration config) throws SQLException{
-		
-		this.connManager = config.getConnectionManager();
-		this.localExecutor = config.getLocalExecutor();
-		this.tableFactory = config.getTableFactory();
-		
-		this.holder = connManager.getConnection();
+		try{
+			return localExecutor.selectOne( new SelectContext<T>(tableModel, rowid),holder);
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 
 	@Override
 	public <T> T queryForObject(ResultSetHandler<T> handler, String sql,
-			SqlParameters ...parameters) throws SQLException {
+			SqlParameters ...parameters) throws JpackerException {
 		Object[] array = getParameters(parameters);
-		
-		return localExecutor.selectHandler(new HandlerContext<T>(handler,sql,array), holder);
+		try{
+			return localExecutor.selectHandler(new HandlerContext<T>(handler,sql,array), holder);
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 
 	@Override
 	public <T> List<T> queryForLimit(ResultSetHandler<List<T>> handler,
 			String sql, int start, int rows, SqlParameters ...parameters)
-			throws SQLException {
+			throws JpackerException {
 		Object[] array = getParameters(parameters);
-		return localExecutor.selectHandler(new HandlerContext<List<T>>(handler, sql, start, rows, array), holder);
+		try{
+			return localExecutor.selectHandler(new HandlerContext<List<T>>(handler, sql, start, rows, array), holder);
+		}catch(Exception e){
+			throw new JpackerException(e);
+		}
 	}
 
 }

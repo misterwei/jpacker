@@ -4,9 +4,9 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import jpacker.JdbcExecutor;
+import jpacker.Jpacker;
 import jpacker.connection.ConnectionManager;
-import jpacker.impl.DefaultJdbcExecutor;
+import jpacker.impl.DefaultJpacker;
 import jpacker.local.LocalExecutor;
 
 import org.slf4j.Logger;
@@ -20,43 +20,34 @@ public class Configuration {
 	
 	private LocalExecutor localExecutor;
 	
-	private ConnectionManager connManager;
-	
-	private Class<? extends JdbcExecutor> jdbcExecutorClass;
+	private DataSource ds;
 	
 	public Configuration(DataSource ds,List<Class<?>> clazzs,LocalExecutor localExecutor) throws Exception{
-		this(ds,clazzs,localExecutor,DefaultJdbcExecutor.class);
-	}
-	
-	public Configuration(DataSource ds,List<Class<?>> clazzs,LocalExecutor localExecutor,Class<? extends JdbcExecutor> jdbcClass) throws Exception{
-		
-		this.jdbcExecutorClass = jdbcClass;
+		this.ds = ds;
 		
 		if(clazzs != null){
 			for(int i=0;i<clazzs.size();i++){
 				tableContext.loadTableAnnotation(clazzs.get(i));
 			}
 		}
-		
-		connManager = new ConnectionManager(ds);
-		
-		localExecutor.init(tableContext, connManager);
+	
 		this.localExecutor = localExecutor;
+	}
+	
+	public void initLocalExecutor(ConnectionManager cm){
+		this.localExecutor.init(tableContext, cm);
 	}
 	
 	public LocalExecutor getLocalExecutor(){
 		return localExecutor;
 	}
 	
-	public ConnectionManager getConnectionManager(){
-		return connManager;
-	}
-	
 	public TableFactory getTableFactory(){
 		return tableContext;
 	}
 	
-	public Class<? extends JdbcExecutor> getJdbcExecutorClass(){
-		return jdbcExecutorClass;
+	public DataSource getDataSource(){
+		return ds;
 	}
+	
 }

@@ -5,18 +5,18 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import jpacker.JdbcExecutor;
+import jpacker.Jpacker;
 import jpacker.local.LocalExecutor;
 
-public class JdbcExecutorUtils {
+public class JpackerUtils {
 	
-	private static JdbcExecutorFactory factory;
+	private static JpackerFactory factory;
 	public static void instanceConfiguration(DataSource ds,List<Class<?>> clazzs,LocalExecutor localExecutor) throws Exception{
-		factory = new JdbcExecutorFactory(new Configuration(ds,clazzs,localExecutor));
+		factory = new DefaultJpackerFactory(new Configuration(ds,clazzs,localExecutor));
 	}
 	
-	public static JdbcExecutor getJdbcExecutor(){
-		return factory.getJdbcExecutor();
+	public static Jpacker getJpacker(){
+		return factory.getJpacker();
 	}
 	
 	public static void beginThreadLocal() throws SQLException{

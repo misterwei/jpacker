@@ -22,12 +22,14 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -485,7 +487,11 @@ public class BeanProcessor {
         	}
             return '\0';
 
-        } else if (propType.equals(Timestamp.class)) {
+        }else if(propType == BigDecimal.class){
+			return propType.cast(rs.getBigDecimal(index));
+        }else if(propType == Date.class){
+			return propType.cast(new Date(rs.getTimestamp(index).getTime()));
+		}else if (propType.equals(Timestamp.class)) {
             return rs.getTimestamp(index);
 
         } else {

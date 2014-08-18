@@ -10,7 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jpacker.factory.JdbcExecutorUtils;
+import jpacker.factory.JpackerUtils;
 import jpacker.local.AbstractLocalExecutor;
 import jpacker.local.PostgresSQLExecutor;
 import junit.framework.TestCase;
@@ -34,13 +34,13 @@ public class PostgresTest extends TestCase{
 		
 		Logger log = LoggerFactory.getLogger(PostgresTest.class);
 		
-		JdbcExecutorUtils.instanceConfiguration(cpds, list,new PostgresSQLExecutor());
+		JpackerUtils.instanceConfiguration(cpds, list,new PostgresSQLExecutor());
 	}
 	
 	public void testSelectBean() throws Exception{
 		init();
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		List<TestModel> recs = jdbc.queryForList(TestModel.class, "select * from users",null);
 		jdbc.close();
 		
@@ -53,7 +53,7 @@ public class PostgresTest extends TestCase{
 	public void testSelectOne() throws Exception{
 		init();
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		TestModel recs = jdbc.queryOne(TestModel.class, "select * from users where id=1045");
 		jdbc.close();
 		
@@ -66,7 +66,7 @@ public class PostgresTest extends TestCase{
 	public void testSelectHandlerOne() throws Exception{
 		init();
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		jdbc.queryForObject(new ResultSetHandler<TestModel>(){
 
 			@Override
@@ -85,7 +85,7 @@ public class PostgresTest extends TestCase{
 	public void testSelectHandlerList() throws Exception{
 		init();
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		jdbc.queryForLimit(new ResultSetHandler<List<TestModel>>(){
 
 			@Override
@@ -104,7 +104,7 @@ public class PostgresTest extends TestCase{
 	public void testInsertOne() throws Exception{
 		init();
 		System.out.println("start");
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		
 		jdbc.begin();
 		TestModel test = new TestModel();
@@ -126,7 +126,7 @@ public class PostgresTest extends TestCase{
 		
 		System.out.println("start");
 		long sum = 0;
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 //		jdbc.setThreadLocal(true);
 		jdbc.begin();
 		for(int i=0;i<1000;i++){
@@ -158,7 +158,7 @@ public class PostgresTest extends TestCase{
 		jdbc.close();
 		
 		System.out.println(sum + "   " + (sum/10000));
-//		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+//		JdbcExecutor jdbc = JdbcExecutorUtils.getJpacker();
 		
 //		JdbcExecutorUtils.relaseJdbcExecutor(jdbc);
 		
@@ -169,7 +169,7 @@ public class PostgresTest extends TestCase{
 		
 		System.out.println("start");
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		//List<TestModel> recs = jdbc.select("select * from users", new BeanListHandler<TestModel>(TestModel.class));
 		List<Object[]>  list= jdbc.queryForLimit(Object[].class, "select u.username,count(u.username) as usecount from users u group by u.username order by u.username",4,20);
 		

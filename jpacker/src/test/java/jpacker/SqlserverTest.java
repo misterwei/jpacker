@@ -13,7 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import jpacker.factory.JdbcExecutorUtils;
+import jpacker.factory.JpackerUtils;
 import jpacker.local.InsertContext;
 import jpacker.local.MSSQL2005Executor;
 import jpacker.model.SqlParameters;
@@ -25,8 +25,8 @@ public class SqlserverTest extends TestCase{
 	
 	public void testJdbc() throws Exception{
 		init();
-		JdbcExecutorUtils.beginThreadLocal();
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		JpackerUtils.beginThreadLocal();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		TestModel recs = jdbc.queryOne(TestModel.class, "select * from users where id=? or id=?",new SqlParameters(100),new SqlParameters(102));
 		jdbc.close();
 		
@@ -35,7 +35,7 @@ public class SqlserverTest extends TestCase{
 		
 		System.out.println(recs.getTestArray());
 		
-		JdbcExecutorUtils.endThreadLocal();
+		JpackerUtils.endThreadLocal();
 		System.out.println(recs);
 
 	}
@@ -43,7 +43,7 @@ public class SqlserverTest extends TestCase{
 	public void testJdbc2() throws Exception{
 		init();
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		jdbc.queryOne(Map.class, "select * from users where id=? " ,new SqlParameters(100));
 		jdbc.close();
 		
@@ -53,7 +53,7 @@ public class SqlserverTest extends TestCase{
 	
 	public void testCount() throws Exception{
 
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		int count = jdbc.queryOne(Integer.class, "select count(*) from users");
 		jdbc.close();
 		
@@ -79,7 +79,7 @@ public class SqlserverTest extends TestCase{
 	public void testSelectBean() throws Exception{
 		init();
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		List<TestModel> recs = jdbc.queryForList(TestModel.class, "select * from users");
 		jdbc.close();
 		
@@ -92,7 +92,7 @@ public class SqlserverTest extends TestCase{
 	public void testPageQuery() throws Exception{
 		init();
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		//List<TestModel> recs = jdbc.select("select * from users", new BeanListHandler<TestModel>(TestModel.class));
 		List<Object[]>  list= jdbc.queryForLimit(Object[].class, "select u.username,count(u.username) as usecount from users u group by u.username order by u.username",4,20);
 		
@@ -107,7 +107,7 @@ public class SqlserverTest extends TestCase{
 	public void testPageQuery2() throws Exception{
 		init();
 
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		//List<TestModel> recs = jdbc.select("select * from users", new BeanListHandler<TestModel>(TestModel.class));
 		List<String>  list= jdbc.queryForLimit(String.class, "select distinct username from users",4,20);
 		
@@ -123,10 +123,10 @@ public class SqlserverTest extends TestCase{
 		init();
 		
 		long sum = 0;
-		JdbcExecutorUtils.beginThreadLocal();
+		JpackerUtils.beginThreadLocal();
 		
 		for(int i=0;i<1;i++){
-			JdbcExecutor jdbc2 = JdbcExecutorUtils.getJdbcExecutor();
+			Jpacker jdbc2 = JpackerUtils.getJpacker();
 			
 			long start = System.currentTimeMillis();
 			TestModel test = jdbc2.get(TestModel.class, 100);
@@ -147,7 +147,7 @@ public class SqlserverTest extends TestCase{
 		}
 		
 //		System.out.println(sum +"   "+(sum/2000));
-		JdbcExecutorUtils.endThreadLocal();
+		JpackerUtils.endThreadLocal();
 		
 	}
 	
@@ -156,10 +156,10 @@ public class SqlserverTest extends TestCase{
 		
 		
 		long sum = 0;
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		
 		for(int i=0;i<10;i++){
-			JdbcExecutor jdbc2 = JdbcExecutorUtils.getJdbcExecutor();
+			Jpacker jdbc2 = JpackerUtils.getJpacker();
 			
 			long start = System.currentTimeMillis();
 			TestModel test = jdbc2.get(TestModel.class, i);
@@ -173,14 +173,14 @@ public class SqlserverTest extends TestCase{
 		}
 //		System.out.println(test);
 		
-		JdbcExecutor jdbc3 = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc3 = JpackerUtils.getJpacker();
 		long start = System.currentTimeMillis();
 		TestModel test = jdbc3.get(TestModel.class, 100);
 		long end = System.currentTimeMillis();
 		
 		sum += end-start;
 		
-			JdbcExecutor jdbc4 = JdbcExecutorUtils.getJdbcExecutor();
+			Jpacker jdbc4 = JpackerUtils.getJpacker();
 			
 			long start2 = System.currentTimeMillis();
 			TestModel test2 = jdbc4.get(TestModel.class, 101);
@@ -196,7 +196,7 @@ public class SqlserverTest extends TestCase{
 		
 		
 		
-			JdbcExecutor jdbc5 = JdbcExecutorUtils.getJdbcExecutor();
+			Jpacker jdbc5 = JpackerUtils.getJpacker();
 			
 			long start3 = System.currentTimeMillis();
 			TestModel test3 = jdbc5.get(TestModel.class, 100);
@@ -216,7 +216,7 @@ public class SqlserverTest extends TestCase{
 		
 		
 		long sum = 0;
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 //		jdbc.setThreadLocal(true);
 		jdbc.begin();
 		for(int i=0;i<1000;i++){
@@ -248,7 +248,7 @@ public class SqlserverTest extends TestCase{
 		jdbc.close();
 		
 		System.out.println(sum + "   " + (sum/10000));
-//		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+//		JdbcExecutor jdbc = JdbcExecutorUtils.getJpacker();
 		
 //		JdbcExecutorUtils.relaseJdbcExecutor(jdbc);
 		
@@ -264,7 +264,7 @@ public class SqlserverTest extends TestCase{
 		test.setStatus("enabled");
 		test.setId(7);
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 		jdbc.delete(TestModel.class,7);
 		jdbc.close();
 		
@@ -283,7 +283,7 @@ public class SqlserverTest extends TestCase{
 		test.setStatus("disabled");
 		test.setId(4);
 		
-		JdbcExecutor jdbc = JdbcExecutorUtils.getJdbcExecutor();
+		Jpacker jdbc = JpackerUtils.getJpacker();
 			jdbc.update(test);
 		jdbc.close();
 		
@@ -308,7 +308,7 @@ public class SqlserverTest extends TestCase{
 		List list = new ArrayList();
 		list.add(TestModel.class);
 		
-		JdbcExecutorUtils.instanceConfiguration(cpds, list,new MSSQL2005Executor());
+		JpackerUtils.instanceConfiguration(cpds, list,new MSSQL2005Executor());
 		
 	}
 	

@@ -11,13 +11,11 @@ public class ConnectionHolder {
 	private Connection connection;
 	private boolean isAutoCommit = true;
 	
-	private boolean isActive = false;
 	private ConnectionHolder parentHolder = null;
 	private int id;
 	
 	public ConnectionHolder(int id,Connection connection){
 		this.connection = connection;
-		isActive = true;
 		this.id = id;
 		log.debug("create new connection,id:{}",id);
 	}
@@ -50,6 +48,10 @@ public class ConnectionHolder {
 	
 	public ConnectionHolder getParent(){
 		return parentHolder;
+	}
+	
+	public Integer getId(){
+		return id;
 	}
 	
 	public Connection getConnection(){
@@ -101,36 +103,16 @@ public class ConnectionHolder {
 		return false;
 	}
 	
-	
-	public boolean isActive(){
-		if(isActive && parentHolder != null){
-			return parentHolder.isActive();
-		}else{
-			return isActive;
-		}
-	}
-	
-	
 	protected void release() throws SQLException{
-		try{
-			if(!isAutoCommit){
-				try{
-					commit();
-				}finally{
-					rollback();
-				}
-			}
-			
-		}finally{
-			isAutoCommit = true;
-			isActive = false;
-			
-			if(parentHolder == null){
-				connection.close();
-				log.debug("close the connection,id:{}",id);
-			}else{
-				parentHolder = null;
-			}
+		if(!isAutoCommit){
+			log.warn("is auto commit ,but not commit");
+		}
+		
+		if(parentHolder == null){
+			connection.close();
+			log.debug("close the connection,id:{}",id);
+		}else{
+			parentHolder = null;
 		}
 		
 		connection = null;

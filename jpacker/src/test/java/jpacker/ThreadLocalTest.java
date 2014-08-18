@@ -3,7 +3,7 @@ package jpacker;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 
-import jpacker.impl.DefaultJdbcExecutor;
+import jpacker.impl.DefaultJpacker;
 
 public class ThreadLocalTest {
 	static enum CAN_COMMIT {NO,YES};

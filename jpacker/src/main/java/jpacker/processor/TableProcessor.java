@@ -20,7 +20,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -517,57 +516,7 @@ public class TableProcessor {
     protected Object processColumn(ResultSet rs, int index, Class<?> propType)
         throws SQLException {
         
-        if ( !propType.isPrimitive() && rs.getObject(index) == null ) {
-            return null;
-        }
-        
-        if ( !propType.isPrimitive() && rs.getObject(index) == null ) {
-            return null;
-        }
-
-        if (propType.equals(String.class)) {
-            return rs.getString(index);
-
-        } else if (
-            propType.equals(Integer.TYPE) || propType.equals(Integer.class)) {
-            return (rs.getInt(index));
-
-        } else if (
-            propType.equals(Boolean.TYPE) || propType.equals(Boolean.class)) {
-            return (rs.getBoolean(index));
-
-        } else if (propType.equals(Long.TYPE) || propType.equals(Long.class)) {
-            return (rs.getLong(index));
-
-        } else if (
-            propType.equals(Double.TYPE) || propType.equals(Double.class)) {
-            return (rs.getDouble(index));
-
-        } else if (
-            propType.equals(Float.TYPE) || propType.equals(Float.class)) {
-            return (rs.getFloat(index));
-
-        } else if (
-            propType.equals(Short.TYPE) || propType.equals(Short.class)) {
-            return (rs.getShort(index));
-
-        } else if (propType.equals(Byte.TYPE) || propType.equals(Byte.class)) {
-            return (rs.getByte(index));
-
-        } else if (propType.equals(Character.TYPE) || propType.equals(Character.class)) {
-        	String cv = rs.getString(index);
-        	if(cv != null && cv.length() > 0){
-        		return cv.charAt(0);
-        	}
-            return '\0';
-
-        } else if (propType.equals(Timestamp.class)) {
-            return rs.getTimestamp(index);
-
-        } else {
-            return rs.getObject(index);
-        }
-
+        return RowUtils.autoConvert(rs, index, propType);
     }
 
 }
